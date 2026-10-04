@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collabo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f1750;--bg:#f6f4ff;--pink:#ff4f81;--teal:#12a594;--sun:#ffc531;--mute:#625b8c;--line:#e4e0f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'DM Sans',system-ui,sans-serif;padding-bottom:48px}
+.hero{background:var(--ink);color:#fff;padding:22px 20px 88px;border-radius:0 0 36px 36px}
+.logo{display:inline-block;background:var(--sun);color:var(--ink);font:800 15px 'Bricolage Grotesque',system-ui,sans-serif;padding:6px 14px;border-radius:99px}
+h1{font:800 40px/1.05 'Bricolage Grotesque',system-ui,sans-serif;margin:22px 0 10px;letter-spacing:-.02em;max-width:11ch}
+.hero p{margin:0;color:#c9c3ee;max-width:30ch}
+.pills{margin-top:22px;display:flex}
+.pills span{font:800 16px 'Bricolage Grotesque',system-ui,sans-serif;padding:10px 20px;border-radius:99px;color:#fff}
+.pk{background:var(--pink);transform:rotate(-4deg)}
+.pb{background:var(--teal);transform:rotate(3deg);margin-left:-8px}
+main{max-width:440px;margin:-60px auto 0;padding:0 16px}
+h2{font:800 24px 'Bricolage Grotesque',system-ui,sans-serif;margin:0 0 12px}
+.card{background:#fff;border-radius:24px;padding:22px;box-shadow:0 12px 32px rgba(31,23,80,.12)}
+label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+input,select,textarea{width:100%;padding:14px;border:2px solid transparent;border-radius:14px;font:inherit;background:var(--bg);color:var(--ink)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:99px;background:var(--pink);color:#fff;font:800 16px 'Bricolage Grotesque',system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 0 #c2305a;transition:transform .08s}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #c2305a}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.roles button{margin:0;background:var(--bg);color:var(--ink);box-shadow:none;border:2px solid transparent}
+.roles button.on{background:var(--ink);color:#fff}
+.link{background:none;color:var(--teal);width:auto;padding:4px;margin:14px 0 0;text-decoration:underline;box-shadow:none;font:700 15px 'DM Sans',sans-serif}
+.sec{font-size:22px;margin:30px 4px 12px}
+.item{background:#fff;border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 6px 20px rgba(31,23,80,.07);border-left:6px solid var(--pink)}
+.item.brand{border-left-color:var(--teal)}
+.top{display:flex;gap:12px;align-items:center}
+.av{width:46px;height:46px;border-radius:50%;color:#fff;font:800 20px 'Bricolage Grotesque',system-ui,sans-serif;display:grid;place-items:center;flex:none}
+.item b{display:block;font:800 18px/1.2 'Bricolage Grotesque',system-ui,sans-serif}
+.item small{color:var(--mute);font-weight:700;font-size:13px}
+.item p{margin:10px 0 4px;color:var(--mute)}
+.tag{display:inline-block;background:#efeaff;border-radius:99px;padding:3px 11px;font-size:13px;margin:6px 6px 0 0}
+.row{display:flex;gap:10px}
+.row button{flex:1}
+.sm{margin-top:12px;padding:11px;font-size:15px}
+.state{margin-top:12px;color:var(--teal);font-weight:700}
+.empty{color:var(--mute);margin:0 4px}
+#msg{margin:14px 4px 0;min-height:22px;color:#c0262d;font-weight:500}
+#msg.ok{color:var(--teal)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="logo">Collabo</div>
+  <h1>Creators meet brands.</h1>
+  <p>Make a profile, find your match, start a collaboration.</p>
+  <div class="pills"><span class="pk">Creators</span><span class="pb">Brands</span></div>
+</header>
+<main>
+
+<!-- Login / Signup -->
+<section id="auth" class="card">
+  <h2 id="authTitle">Create your account</h2>
+  <div id="roleBox">
+    <label>I am a</label>
+    <div class="roles">
+      <button type="button" data-role="creator" class="on">Creator</button>
+      <button type="button" data-role="brand">Brand</button>
+    </div>
+  </div>
+  <label for="email">Email</label>
+  <input id="email" type="email" autocomplete="email">
+  <label for="pass">Password (6+ characters)</label>
+  <input id="pass" type="password" autocomplete="current-password">
+  <button id="authBtn">Sign up</button>
+  <button id="toggle" class="link" type="button">I already have an account</button>
+</section>
+
+<!-- Profile setup -->
+<section id="setup" class="card hide">
+  <h2>Set up your profile</h2>
+  <label for="name">Name</label><input id="name">
+  <label for="bio">About you</label><textarea id="bio" rows="3"></textarea>
+  <div id="creatorF">
+    <label for="niche">Your niche (fashion, gaming...)</label><input id="niche">
+    <label for="platforms">Platforms (Instagram, YouTube...)</label><input id="platforms">
+    <label for="followers">Followers</label><input id="followers" type="number" inputmode="numeric">
+  </div>
+  <div id="brandF" class="hide">
+    <label for="industry">Industry (food, tech...)</label><input id="industry">
+    <label for="budget">Typical budget per collaboration</label><input id="budget">
+  </div>
+  <button id="saveBtn">Save profile</button>
+</section>
+
+<!-- Signed in -->
+<section id="home" class="hide">
+  <div class="card">
+    <h2 id="hello"></h2>
+    <input id="q" type="search" placeholder="Search name, niche or industry">
+    <button id="out" class="ghost">Log out</button>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <label for="myContact">Your WhatsApp or Instagram</label>
+    <input id="myContact" placeholder="Shown only to people you accept">
+    <button id="saveContact" class="ghost">Save contact</button>
+  </div>
+  <h2 class="sec" id="listTitle"></h2>
+  <div id="list"></div>
+  <h2 class="sec">Requests</h2>
+  <div id="reqs"></div>
+</section>
+
+<div id="msg" role="status"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// 1. Paste your values from Supabase > Project Settings > API
+const SUPABASE_URL = "https://mwwvivyhnivlzooxpyhe.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XegpMqhu-_wb13mkVV-LJw_xK29pDA7";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let role = "creator", isLogin = false, me = null, people = [], conns = [], cmap = {};
+
+function say(t, ok){ $("msg").textContent = t || ""; $("msg").className = ok ? "ok" : ""; }
+function show(id){ ["auth","setup","home"].forEach(s => $(s).classList.toggle("hide", s !== id)); }
+
+document.querySelectorAll(".roles button").forEach(b => b.onclick = () => {
+  role = b.dataset.role;
+  document.querySelectorAll(".roles button").forEach(x => x.classList.toggle("on", x === b));
+});
+
+$("toggle").onclick = () => {
+  isLogin = !isLogin;
+  $("authTitle").textContent = isLogin ? "Welcome back" : "Create your account";
+  $("authBtn").textContent = isLogin ? "Log in" : "Sign up";
+  $("toggle").textContent = isLogin ? "I need a new account" : "I already have an account";
+  $("roleBox").classList.toggle("hide", isLogin);
+  say("");
+};
+
+$("authBtn").onclick = async () => {
+  say("");
+  const email = $("email").value.trim(), password = $("pass").value;
+  if (!email || password.length < 6) return say("Enter your email and a password of 6+ characters.");
+  if (isLogin) {
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) return say(error.message);
+    return route();
+  }
+  const { data, error } = await db.auth.signUp({ email, password, options: { data: { role } } });
+  if (error) return say(error.message);
+  if (!data.session) return say("Check your email and tap the confirmation link, then log in.", true);
+  route();
+};
+
+async function route(){
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return show("auth");
+  const { data: p } = await db.from("profiles").select("*").eq("id", user.id).maybeSingle();
+  if (p) { me = p; $("hello").textContent = "Hi, " + p.name; show("home"); return loadAll(); }
+  role = (user.user_metadata && user.user_metadata.role) || role;
+  $("creatorF").classList.toggle("hide", role !== "creator");
+  $("brandF").classList.toggle("hide", role !== "brand");
+  show("setup");
+}
+
+$("saveBtn").onclick = async () => {
+  const { data: { user } } = await db.auth.getUser();
+  const name = $("name").value.trim();
+  if (!name) return say("Add your name.");
+  const row = { id: user.id, role, name, bio: $("bio").value.trim() };
+  if (role === "creator") {
+    row.niche = $("niche").value.trim();
+    row.platforms = $("platforms").value.trim();
+    row.followers = parseInt($("followers").value) || null;
+  } else {
+    row.industry = $("industry").value.trim();
+    row.budget = $("budget").value.trim();
+  }
+  const { error } = await db.from("profiles").insert(row);
+  if (error) return say(error.message);
+  say(""); route();
+};
+
+$("out").onclick = async () => { await db.auth.signOut(); say(""); show("auth"); };
+
+const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tags = p => [p.niche, p.industry, p.platforms, p.followers ? p.followers + " followers" : "", p.budget ? "Budget " + p.budget : ""]
+  .filter(Boolean).map(x => '<span class="tag">' + esc(x) + '</span>').join("");
+const contactOf = id => cmap[id] ? '<div class="state">Contact: ' + esc(cmap[id]) + '</div>' : '<div class="state">Connected. No contact added yet.</div>';
+const hue = t => [...t].reduce((a, c) => a + c.charCodeAt(0), 0) * 37 % 360;
+const head = p => '<div class="top"><span class="av" style="background:hsl(' + hue(p.name || "?") + ' 65% 42%)">' + esc((p.name || "?")[0].toUpperCase()) + '</span><div><b>' + esc(p.name) + '</b><small>' + (p.role === "brand" ? "Brand" : "Creator") + '</small></div></div>';
+const connWith = id => conns.find(c => (c.from_id === me.id && c.to_id === id) || (c.to_id === me.id && c.from_id === id));
+
+async function loadAll(){
+  const other = me.role === "creator" ? "brand" : "creator";
+  $("listTitle").textContent = me.role === "creator" ? "Brands to connect with" : "Creators to connect with";
+  const [a, b, c] = await Promise.all([
+    db.from("profiles").select("*").eq("role", other).order("created_at", { ascending: false }),
+    db.from("connections").select("*"),
+    db.from("contacts").select("*")
+  ]);
+  if (a.error || b.error) return say((a.error || b.error).message);
+  people = a.data || []; conns = b.data || [];
+  cmap = {}; (c.data || []).forEach(x => cmap[x.id] = x.contact);
+  $("myContact").value = cmap[me.id] || "";
+  renderList(); renderReqs();
+}
+
+function renderList(){
+  const q = $("q").value.trim().toLowerCase();
+  const rows = people.filter(p => !q || [p.name, p.niche, p.industry, p.platforms, p.bio].join(" ").toLowerCase().includes(q));
+  $("list").innerHTML = rows.length ? rows.map(p => {
+    const c = connWith(p.id); let act;
+    if (!c) act = '<button class="sm" data-act="connect" data-id="' + p.id + '">Connect</button>';
+    else if (c.status === "accepted") act = contactOf(p.id);
+    else if (c.status === "declined") act = '<div class="state">Not available</div>';
+    else act = '<div class="state">' + (c.from_id === me.id ? "Request sent" : "Wants to connect. See Requests below.") + '</div>';
+    return '<div class="item ' + p.role + '">' + head(p) + '<p>' + esc(p.bio) + '</p>' + tags(p) + act + '</div>';
+  }).join("") : '<p class="empty">No profiles yet. Check back soon, or sign up a second account to test.</p>';
+}
+
+function renderReqs(){
+  const who = id => people.find(p => p.id === id);
+  const rows = conns.filter(c => c.status !== "declined").map(c => {
+    const otherId = c.from_id === me.id ? c.to_id : c.from_id, p = who(otherId);
+    if (!p) return "";
+    let act;
+    if (c.status === "accepted") act = contactOf(p.id);
+    else if (c.from_id === me.id) act = '<div class="state">Waiting for a reply</div>';
+    else act = '<div class="row"><button class="sm" data-act="accepted" data-id="' + c.id + '">Accept</button><button class="sm ghost" data-act="declined" data-id="' + c.id + '">Decline</button></div>';
+    return '<div class="item ' + p.role + '">' + head(p) + '<div>' + tags(p) + '</div>' + act + '</div>';
+  }).join("");
+  $("reqs").innerHTML = rows || '<p class="empty">No requests yet.</p>';
+}
+
+$("q").oninput = renderList;
+$("saveContact").onclick = async () => {
+  const v = $("myContact").value.trim();
+  if (!v) return say("Enter a WhatsApp number or Instagram handle.");
+  const { error } = await db.from("contacts").upsert({ id: me.id, contact: v });
+  if (error) return say(error.message);
+  say("Saved. Only people you accept can see it.", true);
+};
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  b.disabled = true; say("");
+  const act = b.dataset.act;
+  const r = act === "connect"
+    ? await db.from("connections").insert({ from_id: me.id, to_id: b.dataset.id })
+    : await db.from("connections").update({ status: act }).eq("id", b.dataset.id);
+  if (r.error) { b.disabled = false; return say(r.error.message); }
+  loadAll();
+});
+
+route();
+</script>
+</body>
+</html>

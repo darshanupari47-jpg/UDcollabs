@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collabo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1b1f3b;--bg:#eef0fb;--card:#fff;--pink:#e0457b;--teal:#1f8a8a;--line:#d5d9ee}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;padding:24px 16px}
+main{max-width:420px;margin:0 auto}
+h1{font:800 34px/1.1 'Bricolage Grotesque',system-ui,sans-serif;margin:8px 0 6px}
+h2{font:800 24px 'Bricolage Grotesque',system-ui,sans-serif;margin:0 0 12px}
+p.sub{margin:0 0 20px;color:#555b80}
+.card{background:var(--card);border-radius:18px;padding:20px;border:1px solid var(--line)}
+label{display:block;font-weight:500;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--teal);outline-offset:1px}
+button{width:100%;margin-top:16px;padding:13px;border:0;border-radius:10px;background:var(--pink);color:#fff;font:500 16px Inter,sans-serif;cursor:pointer}
+button.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.roles button{margin:0;background:#fff;color:var(--ink);border:2px solid var(--line)}
+.roles button.on{border-color:var(--pink);background:#fde8ef}
+#msg{margin-top:12px;min-height:22px;color:#b3261e}
+#msg.ok{color:var(--teal)}
+.hide{display:none}
+.link{background:none;color:var(--teal);width:auto;padding:4px;margin:12px 0 0;text-decoration:underline}
+.sec{margin:24px 0 10px;font-size:20px}
+.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.item b{font:800 18px 'Bricolage Grotesque',system-ui,sans-serif}
+.item p{margin:4px 0;color:#555b80;font-size:15px}
+.tag{display:inline-block;background:var(--bg);border-radius:8px;padding:2px 8px;font-size:13px;margin:2px 4px 0 0}
+.row{display:flex;gap:8px}
+.sm{margin-top:10px;padding:10px}
+.state{margin-top:10px;color:var(--teal);font-weight:500}
+.empty{color:#555b80}
+</style>
+</head>
+<body>
+<main>
+<h1>Creators meet brands.</h1>
+<p class="sub">Make a profile, find your match, start a collaboration.</p>
+
+<!-- Login / Signup -->
+<section id="auth" class="card">
+  <h2 id="authTitle">Create your account</h2>
+  <div id="roleBox">
+    <label>I am a</label>
+    <div class="roles">
+      <button type="button" data-role="creator" class="on">Creator</button>
+      <button type="button" data-role="brand">Brand</button>
+    </div>
+  </div>
+  <label for="email">Email</label>
+  <input id="email" type="email" autocomplete="email">
+  <label for="pass">Password (6+ characters)</label>
+  <input id="pass" type="password" autocomplete="current-password">
+  <button id="authBtn">Sign up</button>
+  <button id="toggle" class="link" type="button">I already have an account</button>
+</section>
+
+<!-- Profile setup -->
+<section id="setup" class="card hide">
+  <h2>Set up your profile</h2>
+  <label for="name">Name</label><input id="name">
+  <label for="bio">About you</label><textarea id="bio" rows="3"></textarea>
+  <div id="creatorF">
+    <label for="niche">Your niche (fashion, gaming...)</label><input id="niche">
+    <label for="platforms">Platforms (Instagram, YouTube...)</label><input id="platforms">
+    <label for="followers">Followers</label><input id="followers" type="number" inputmode="numeric">
+  </div>
+  <div id="brandF" class="hide">
+    <label for="industry">Industry (food, tech...)</label><input id="industry">
+    <label for="budget">Typical budget per collaboration</label><input id="budget">
+  </div>
+  <button id="saveBtn">Save profile</button>
+</section>
+
+<!-- Signed in -->
+<section id="home" class="hide">
+  <div class="card">
+    <h2 id="hello"></h2>
+    <input id="q" type="search" placeholder="Search name, niche or industry">
+    <button id="out" class="ghost">Log out</button>
+  </div>
+  <h2 class="sec" id="listTitle"></h2>
+  <div id="list"></div>
+  <h2 class="sec">Requests</h2>
+  <div id="reqs"></div>
+</section>
+
+<div id="msg" role="status"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// 1. Paste your values from Supabase > Project Settings > API
+const SUPABASE_URL = "https://mwwvivyhnivlzooxpyhe.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XegpMqhu-_wb13mkVV-LJw_xK29pDA7";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let role = "creator", isLogin = false, me = null, people = [], conns = [];
+
+function say(t, ok){ $("msg").textContent = t || ""; $("msg").className = ok ? "ok" : ""; }
+function show(id){ ["auth","setup","home"].forEach(s => $(s).classList.toggle("hide", s !== id)); }
+
+document.querySelectorAll(".roles button").forEach(b => b.onclick = () => {
+  role = b.dataset.role;
+  document.querySelectorAll(".roles button").forEach(x => x.classList.toggle("on", x === b));
+});
+
+$("toggle").onclick = () => {
+  isLogin = !isLogin;
+  $("authTitle").textContent = isLogin ? "Welcome back" : "Create your account";
+  $("authBtn").textContent = isLogin ? "Log in" : "Sign up";
+  $("toggle").textContent = isLogin ? "I need a new account" : "I already have an account";
+  $("roleBox").classList.toggle("hide", isLogin);
+  say("");
+};
+
+$("authBtn").onclick = async () => {
+  say("");
+  const email = $("email").value.trim(), password = $("pass").value;
+  if (!email || password.length < 6) return say("Enter your email and a password of 6+ characters.");
+  if (isLogin) {
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) return say(error.message);
+    return route();
+  }
+  const { data, error } = await db.auth.signUp({ email, password, options: { data: { role } } });
+  if (error) return say(error.message);
+  if (!data.session) return say("Check your email and tap the confirmation link, then log in.", true);
+  route();
+};
+
+async function route(){
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return show("auth");
+  const { data: p } = await db.from("profiles").select("*").eq("id", user.id).maybeSingle();
+  if (p) { me = p; $("hello").textContent = "Hi, " + p.name; show("home"); return loadAll(); }
+  role = (user.user_metadata && user.user_metadata.role) || role;
+  $("creatorF").classList.toggle("hide", role !== "creator");
+  $("brandF").classList.toggle("hide", role !== "brand");
+  show("setup");
+}
+
+$("saveBtn").onclick = async () => {
+  const { data: { user } } = await db.auth.getUser();
+  const name = $("name").value.trim();
+  if (!name) return say("Add your name.");
+  const row = { id: user.id, role, name, bio: $("bio").value.trim() };
+  if (role === "creator") {
+    row.niche = $("niche").value.trim();
+    row.platforms = $("platforms").value.trim();
+    row.followers = parseInt($("followers").value) || null;
+  } else {
+    row.industry = $("industry").value.trim();
+    row.budget = $("budget").value.trim();
+  }
+  const { error } = await db.from("profiles").insert(row);
+  if (error) return say(error.message);
+  say(""); route();
+};
+
+$("out").onclick = async () => { await db.auth.signOut(); say(""); show("auth"); };
+
+const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tags = p => [p.niche, p.industry, p.platforms, p.followers ? p.followers + " followers" : "", p.budget ? "Budget " + p.budget : ""]
+  .filter(Boolean).map(x => '<span class="tag">' + esc(x) + '</span>').join("");
+const connWith = id => conns.find(c => (c.from_id === me.id && c.to_id === id) || (c.to_id === me.id && c.from_id === id));
+
+async function loadAll(){
+  const other = me.role === "creator" ? "brand" : "creator";
+  $("listTitle").textContent = me.role === "creator" ? "Brands to connect with" : "Creators to connect with";
+  const [a, b] = await Promise.all([
+    db.from("profiles").select("*").eq("role", other).order("created_at", { ascending: false }),
+    db.from("connections").select("*")
+  ]);
+  if (a.error || b.error) return say((a.error || b.error).message);
+  people = a.data || []; conns = b.data || [];
+  renderList(); renderReqs();
+}
+
+function renderList(){
+  const q = $("q").value.trim().toLowerCase();
+  const rows = people.filter(p => !q || [p.name, p.niche, p.industry, p.platforms, p.bio].join(" ").toLowerCase().includes(q));
+  $("list").innerHTML = rows.length ? rows.map(p => {
+    const c = connWith(p.id); let act;
+    if (!c) act = '<button class="sm" data-act="connect" data-id="' + p.id + '">Connect</button>';
+    else if (c.status === "accepted") act = '<div class="state">Connected</div>';
+    else if (c.status === "declined") act = '<div class="state">Not available</div>';
+    else act = '<div class="state">' + (c.from_id === me.id ? "Request sent" : "Wants to connect. See Requests below.") + '</div>';
+    return '<div class="item"><b>' + esc(p.name) + '</b><p>' + esc(p.bio) + '</p>' + tags(p) + act + '</div>';
+  }).join("") : '<p class="empty">No profiles yet. Check back soon, or sign up a second account to test.</p>';
+}
+
+function renderReqs(){
+  const who = id => people.find(p => p.id === id);
+  const rows = conns.filter(c => c.status !== "declined").map(c => {
+    const otherId = c.from_id === me.id ? c.to_id : c.from_id, p = who(otherId);
+    if (!p) return "";
+    let act;
+    if (c.status === "accepted") act = '<div class="state">Connected</div>';
+    else if (c.from_id === me.id) act = '<div class="state">Waiting for a reply</div>';
+    else act = '<div class="row"><button class="sm" data-act="accepted" data-id="' + c.id + '">Accept</button><button class="sm ghost" data-act="declined" data-id="' + c.id + '">Decline</button></div>';
+    return '<div class="item"><b>' + esc(p.name) + '</b>' + tags(p) + act + '</div>';
+  }).join("");
+  $("reqs").innerHTML = rows || '<p class="empty">No requests yet.</p>';
+}
+
+$("q").oninput = renderList;
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  b.disabled = true; say("");
+  const act = b.dataset.act;
+  const r = act === "connect"
+    ? await db.from("connections").insert({ from_id: me.id, to_id: b.dataset.id })
+    : await db.from("connections").update({ status: act }).eq("id", b.dataset.id);
+  if (r.error) { b.disabled = false; return say(r.error.message); }
+  loadAll();
+});
+
+route();
+</script>
+</body>
+</html>
